@@ -4,12 +4,12 @@ Welcome to the text-based RPG life simulator that is DiscordLife
 
 > ***Commands***
 
- - `!create` -> Start a new game!
+ - `!create` --> Start a new game!
 
- - `!profile` -> Shows all the details of your character 
+ - `!profile` --> Shows all the details of your character 
 
- - `+age` -> Progresses the game by incrementing the age of the character [Note the + prefix]
+ - `+age` --> Progresses the game by incrementing the age of the character [Note the + prefix]
 
- - `!surrender` -> Ends the current character : (
+ - `!surrender` --> Ends the current character : (
 
- - `!help` -> The trusty command to bring up this message at anytime!
+ - `!help` --> The trusty command to bring up this message at anytime!
