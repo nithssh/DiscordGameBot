@@ -29,5 +29,4 @@ async def on_message(message):
         with open('helpfile.txt') as f:
             await message.channel.send(f.read())
 
-
-client.run('Njg2MTk3OTM2NTM4Nzc5NjQ4.XmTtxg.fDdV0r1FJDNDn5UTqTBW4PJdmYc')
+client.run('{0}'.format(open('token.txt', 'r').read()))
