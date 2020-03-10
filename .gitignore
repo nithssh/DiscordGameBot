@@ -130,3 +130,6 @@ dmypy.json
 
 # Bot token
 token.txt
+
+# VS Code generated configurations
+.vscode/
