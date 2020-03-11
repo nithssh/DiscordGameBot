@@ -53,7 +53,7 @@ async def on_message(message):
         curA.execute(query, userid)
 
         # If user doesn't have exisiting profile
-        if (curA.rowcount == -1):
+        if (curA.rowcount == 0):
             await message.channel.send("Profile doesn't exist.")
             add_profile = ("INSERT INTO gamedata.maintable "
                            "(discord_userID, discord_username, Name, Gender, Age, Occupation, Location, Happiness, Health, Smarts, Looks) "
