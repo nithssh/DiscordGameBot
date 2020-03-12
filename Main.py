@@ -57,13 +57,13 @@ async def on_message(message):
             await message.channel.send("Profile doesn't exist.")
             add_profile = ("INSERT INTO gamedata.maintable "
                            "(discord_userID, discord_username, Name, Gender, Age, Occupation, Location, Happiness, Health, Smarts, Looks) "
-                           "VALUES (%(did)s, %(dun)s, %(n)s, %(g)s, %(a)i, %(o)s, %(l)s, %(hap)f, %(hea)f, %(sma)f, %(loo)f) ")
+                           "VALUES (%(did)s, %(dun)s, %(n)s, %(g)s, %(a)s, %(o)s, %(l)s, %(hap)s, %(hea)s, %(sma)s, %(loo)s) ")
 
             gender = random.choice(['male', 'female'])
 
             data_profile = {
                 'did': message.author.id,
-                'dun': message.author,
+                'dun': message.author.display_name,
                 'n': names.get_full_name(gender=gender),
                 'g': gender,
                 'a': 0,
@@ -77,18 +77,15 @@ async def on_message(message):
                 #bank = 0
                 #bIsDead = False
             }
-            
+
             curA.execute(add_profile, data_profile)
             # Save to DB and Close the cursor
             cnx.commit()
-            await('Profile successfully created. use `!profile` to see details.')
+            await message.channel.send('Profile successfully created. use `!profile` to see details.')
 
         else:
             # Profile already exists
-            #for (Name, Age, discord_username) in curA:
-                # await message.channel.send("A profile with name {}, aged {} by {} already exists".format(
-                #    Name, Age, discord_username))
-                await message.channel.send("Profile already exists. Use `!profile` command to see summary.")
+            await message.channel.send("Profile already exists. Use `!profile` command to see summary.")
 
         curA.close()
 
