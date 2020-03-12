@@ -1,9 +1,13 @@
 import logging
+import random
+import threading
+
 import discord
+import mysql.connector
 import names
 from faker import Faker
-import random
-import mysql.connector
+
+#import time
 
 # Objects
 client = discord.Client()
@@ -12,11 +16,40 @@ fake = Faker()
 # File logger
 logger = logging.getLogger('discord')
 logger.setLevel(logging.INFO)
+# mode is append. r for read and w for write, r+ for both and w+ for both with resetting.
 handler = logging.FileHandler(
-    filename='discord.log', encoding='utf-8', mode='a')  # mode is append. r for read and w for write, r+ for both and w+ for both with resetting.
+    filename='discord.log', encoding='utf-8', mode='a')
 handler.setFormatter(logging.Formatter(
     '%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)
+
+
+def bExists(authorID):
+    """This fuction check if a user profile exists.\n
+    Should be used before proceeding with a command.\n
+    Returns True if user profile exists in gamedata.maintable\n
+    False if profile doesn't exist in the same."""
+
+    ID = {
+        'user_id': authorID
+    }
+    # connect to database
+    cnx = mysql.connector.connect(
+        user='root', password='password123', host='localhost', database='gamedata')
+    cursor = cnx.cursor(buffered=True)
+
+    # Get the record from the DB for message author
+    query = (
+        "SELECT * FROM gamedata.maintable WHERE discord_userID=%(user_id)s")
+    cursor.execute(query, ID)
+
+    # If user doesn't have exisiting profile
+    if (cursor.rowcount == 0):
+        result = False
+    else:
+        result = True
+
+    return result
 
 # Events
 @client.event
@@ -27,37 +60,34 @@ async def on_ready():
 # Commands
 @client.event
 async def on_message(message):
-    if message.author == client.user:
+    # Prevents recursion
+    if message.author == client.user: 
         return
 
 # !help
     if message.content.startswith('!help'):
-        with open('helpfile.txt', 'r') as f:
+        logger.info('{0}, {1} invoked !help command.'.format(message.author.id, message.author))
+        with open('message_templates/helpfile.txt', 'r') as f:
             await message.channel.send(f.read())
 
 # !create
     if message.content.startswith('!create'):
-        logger.info('{0} invoked !create command'.format(message.author))
-
-        # PROFILE CREATION
-
-        # Connect to the database
-        cnx = mysql.connector.connect(
-            user='root', password='password123', host='localhost', database='gamedata')
-        curA = cnx.cursor(buffered=True)
-
-        # Get the record from the DB for message author
-        query = (
-            "SELECT * FROM gamedata.maintable WHERE discord_userID=%(discord_Uid)s")
-        userid = {'discord_Uid': message.author.id}
-        curA.execute(query, userid)
+        logger.info('{0}, {1} invoked !create command'.format(
+            message.author.id, message.author))
 
         # If user doesn't have exisiting profile
-        if (curA.rowcount == 0):
+        if (bExists(message.author.id) == False):
+            
+            # Connect to the database
+            cnx = mysql.connector.connect(
+            user='root', password='password123', host='localhost', database='gamedata')
+            cursor = cnx.cursor(buffered=True)
+            
             await message.channel.send("Profile doesn't exist.")
+
             add_profile = ("INSERT INTO gamedata.maintable "
-                           "(discord_userID, discord_username, Name, Gender, Age, Occupation, Location, Happiness, Health, Smarts, Looks) "
-                           "VALUES (%(did)s, %(dun)s, %(n)s, %(g)s, %(a)s, %(o)s, %(l)s, %(hap)s, %(hea)s, %(sma)s, %(loo)s) ")
+                           "(discord_userID, discord_username, Name, Gender, Age, Occupation, Location, Happiness, Health, Smarts, Looks, Schedule_deletion) "
+                           "VALUES (%(did)s, %(dun)s, %(n)s, %(g)s, %(a)s, %(o)s, %(l)s, %(hap)s, %(hea)s, %(sma)s, %(loo)s, %(del)s) ")
 
             gender = random.choice(['male', 'female'])
 
@@ -72,28 +102,148 @@ async def on_message(message):
                 'hap': random.randrange(85, 101, 1),
                 'hea': random.randrange(80, 101, 1),
                 'sma': random.randrange(5, 97, 1),
-                'loo': random.randrange(1, 101, 1)
+                'loo': random.randrange(1, 101, 1),
+                'del': 0
 
+                # TODO:
                 #bank = 0
                 #bIsDead = False
             }
 
-            curA.execute(add_profile, data_profile)
-            # Save to DB and Close the cursor
-            cnx.commit()
-            await message.channel.send('Profile successfully created. use `!profile` to see details.')
+            try:
+                cursor.execute(add_profile, data_profile)
+                # Save to DB and Close the cursor
+                cnx.commit()
+                await message.channel.send('Profile successfully created. use `!profile` to see details.')
+                logger.info("{0}, {1} profile creation successful.".format(message.author.id, message.author))
 
+            except:
+                cnx.rollback()
+                await message.channel.send('Profile creation failed.')
+                logger.error("{0}, {1} profile creation failed".format(message.author.id, message.author))
+                
         else:
             # Profile already exists
             await message.channel.send("Profile already exists. Use `!profile` command to see summary.")
+            logger.info("{0}, {1} profile already exists.".format(message.author.id, message.author))
 
-        curA.close()
+        # Close
+        cursor.close()
+        cnx.close()
 
 
-# !profile
+# TODO !profile
     if message.content.startswith('!profile'):
         # profile display
-        logger.info('{0} invoked !profile command'.format(message.author))
+        logger.info('{0}, {1} invoked !profile command'.format(
+            message.author.id, message.author))
+
+# !surrender
+    if message.content.startswith('!surrender'):
+        # profile deletion
+        logger.info('{0}, {1} Invoked !surrender command'.format(
+            message.author.id, message.author))
+
+        if(bExists(message.author.id)):
+
+            # Connect to the database
+            cnx = mysql.connector.connect(
+                user='root', password='password123', host='localhost', database='gamedata')
+            cursor = cnx.cursor(buffered=True)
+            userid = {'discord_Uid': message.author.id}
+
+            # UPDATE the schedule_deletion field to 1 (true).
+            update_deletion = ("UPDATE gamedata.maintable "
+                               "SET Schedule_deletion = '1' "
+                               "WHERE discord_userID=%(discord_Uid)s")
+            cursor.execute(update_deletion, userid)
+            cnx.commit()
+
+            # The Function that gets called after 2 mins.
+            def deletion_function():
+
+                # Retrive updated record
+                schedule_deletion_query = (
+                    "SELECT Schedule_deletion FROM gamedata.maintable WHERE discord_userID=%(discord_Uid)s")
+                userid = {'discord_Uid': message.author.id}
+                cursor.execute(schedule_deletion_query, userid)
+
+                for Schedule_deletion in cursor:
+                    bDeletion = Schedule_deletion
+
+                if (bDeletion[0] == 1):
+                    # Procede with deletion.
+                    delete_query = ("DELETE FROM gamedata.maintable "
+                                    "WHERE discord_userID=%(discord_Uid)s")
+                    try:
+                        cursor.execute(delete_query, userid)
+                        cnx.commit()
+                        logger.info('{0}, {1} profile was successfully deleted.'.format(
+                            message.author.id, message.author))
+
+                        # Close
+                        cursor.close()
+                        cnx.close()
+                        # await message.channel.send('@{0} profile was successfully deleted.'.format(message.author))
+
+                    except:
+                        cnx.rollback()
+                        logger.error("{0}, {1}'s profile was not deleted due to an error.".format(message.author.id, message.author))
+
+                        # Close
+                        cursor.close()
+                        cnx.close()
+                        # await message.channel.send('@{0} profile was not deleted due to an error. Sorry!'.format(message.author))
+                else:
+                    # The deletion has been cancelled
+                    logger.info('The deletion of {0}, {1} profile has been cancelled'.format(
+                        message.author, message.author.id))
+
+            # start the timer
+            timer = threading.Timer(120.0, deletion_function)
+            await message.channel.send('The profile will be deleted after 2 mins,\nUse the `!cancel_surrender` command to ABORT the deletion.')
+            timer.start()
+            logger.info('Deletion timer started for {0}, {1}'.format(message.author, message.author.id))
+                
+        else:
+            await message.channel.send("@{0} 's profile doesn't exist to delete. Invoke `!help` to see help.".format(message.author))
+            logger.info("{0}, {1} profile doesn't exist to delete. [from:!surrender]")
+
+
+# !cancel_surrender
+    if (message.content.startswith('!cancel_surrender')):
+        logger.info('The !cancel_deletion command has been invoked by {0}, {1}'.format(
+            message.author, message.author.id))
+        
+        if (bExists(message.author.id)):
+           
+            # Connect to the database
+            cnx = mysql.connector.connect(
+                user='root', password='password123', host='localhost', database='gamedata')
+            cursor = cnx.cursor(buffered=True)
+            userid = {'discord_Uid': message.author.id}
+
+            # UPDATE the schedule_deletion field to 0 (False).
+            update_deletion = ("UPDATE gamedata.maintable "
+                               "SET Schedule_deletion = '0' "
+                               "WHERE discord_userID=%(discord_Uid)s")
+            try:
+                cursor.execute(update_deletion, userid)
+                cnx.commit()
+                logger.info('The !cancel_surrender command has been successfully executed for {0}, {1}'.format(
+                    message.author, message.author.id))
+                await message.channel.send('The profile deletion (surrender) has been successfully ABORTED.\nYou can continue playing without any change.')
+            except:
+                logger.error('There was an error in executing the !cancel_surrender command for {0}, {1}'.format(
+                    message.author, message.author.id))
+                await message.channel.send("There was an error in cancelling the deletion.")
+
+            # Close
+            cursor.close()
+            cnx.close()
+        else:
+            await message.channel.send("@{0} 's profile doesn't exist. Invoke `!help` to see help.".format(message.author))
+            logger.info("{0}, {1} profile doesn't exist. [from:!cancel_surrender]")
 
 # initialize the loop
 client.run('{0}'.format(open('token.txt', 'r').read()))
