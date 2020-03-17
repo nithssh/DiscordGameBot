@@ -16,7 +16,7 @@ fake = Faker()
 # File logger
 logger = logging.getLogger('discord')
 logger.setLevel(logging.INFO)
-# mode is append. r for read and w for write, r+ for both and w+ for both with resetting.
+# Current mode is a = append. r for read, w for write, r+ for both and w+ for both with resetting.
 handler = logging.FileHandler(
     filename='discord.log', encoding='utf-8', mode='a')
 handler.setFormatter(logging.Formatter(
@@ -27,8 +27,8 @@ logger.addHandler(handler)
 def bExists(authorID):
     """This fuction check if a user profile exists.\n
     Should be used before proceeding with a command.\n
-    Returns True if user profile exists in gamedata.maintable\n
-    False if profile doesn't exist in the same."""
+    Returns: True if user profile exists in gamedata.maintable\n
+             False if profile doesn't exist in the same."""
 
     ID = {
         'user_id': authorID
@@ -60,17 +60,18 @@ async def on_ready():
 # Commands
 @client.event
 async def on_message(message):
+
     # Prevents recursion
     if message.author == client.user: 
         return
 
-# !help
+    # !help
     if message.content.startswith('!help'):
         logger.info('{0}, {1} invoked !help command.'.format(message.author.id, message.author))
-        with open('message_templates/helpfile.txt', 'r') as f:
+        with open('message_templates/help_message.txt', 'r') as f:
             await message.channel.send(f.read())
 
-# !create
+    # !create
     if message.content.startswith('!create'):
         logger.info('{0}, {1} invoked !create command'.format(
             message.author.id, message.author))
@@ -78,19 +79,18 @@ async def on_message(message):
         # If user doesn't have exisiting profile
         if (bExists(message.author.id) == False):
             
+            await message.channel.send("Profile doesn't exist.")
+
             # Connect to the database
             cnx = mysql.connector.connect(
             user='root', password='password123', host='localhost', database='gamedata')
             cursor = cnx.cursor(buffered=True)
-            
-            await message.channel.send("Profile doesn't exist.")
 
             add_profile = ("INSERT INTO gamedata.maintable "
                            "(discord_userID, discord_username, Name, Gender, Age, Occupation, Location, Happiness, Health, Smarts, Looks, Schedule_deletion) "
                            "VALUES (%(did)s, %(dun)s, %(n)s, %(g)s, %(a)s, %(o)s, %(l)s, %(hap)s, %(hea)s, %(sma)s, %(loo)s, %(del)s) ")
 
             gender = random.choice(['male', 'female'])
-
             data_profile = {
                 'did': message.author.id,
                 'dun': message.author.display_name,
@@ -105,9 +105,8 @@ async def on_message(message):
                 'loo': random.randrange(1, 101, 1),
                 'del': 0
 
-                # TODO:
+                # TODO #6 Implement bank in DB, !create, and other references.
                 #bank = 0
-                #bIsDead = False
             }
 
             try:
@@ -132,13 +131,44 @@ async def on_message(message):
         cnx.close()
 
 
-# TODO !profile
+    # TODO #7 !profile
     if message.content.startswith('!profile'):
-        # profile display
-        logger.info('{0}, {1} invoked !profile command'.format(
-            message.author.id, message.author))
+        logger.info('{0}, {1} invoked !profile command'.format(message.author.id, message.author))
+        
+        if (bExists(message.author.id)):
+            
+            # Connect to the database
+            cnx = mysql.connector.connect(
+                user='root', password='password123', host='localhost', database='gamedata')
+            cursor = cnx.cursor(buffered=False)
+            userid = {'discord_Uid': message.author.id}
+        
+            # Retrive the record from the DB
+            query = ("SELECT * FROM gamedata.maintable "
+                    "WHERE discord_userID=%(discord_Uid)s")
+            cursor.execute(query, userid)
+            record = cursor.fetchall()
 
-# !surrender
+            # Ready the data for next operations.
+            for row in record:
+                logger.info('row from record loaded.')
+
+            # Load the message from the file
+            with open('message_templates/profile_summary.txt', 'r') as f:
+                profile_message = f.read().format(row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10])
+            
+            # Send the summary message using data from the dict
+            await message.channel.send(profile_message)
+
+            # Close 
+            cursor.close()
+            cnx.close()
+
+        else:
+            await message.channel.send("@{0}'s profile doesnt exist. Invoke `!help` to get started.".format(message.author))
+            logger.info("{0}, {1} profile doesn't exist doesn't to summarize.".format(message.author.id, message.author))
+
+    # !surrender
     if message.content.startswith('!surrender'):
         # profile deletion
         logger.info('{0}, {1} Invoked !surrender command'.format(
@@ -210,7 +240,7 @@ async def on_message(message):
             logger.info("{0}, {1} profile doesn't exist to delete. [from:!surrender]")
 
 
-# !cancel_surrender
+    # !cancel_surrender
     if (message.content.startswith('!cancel_surrender')):
         logger.info('The !cancel_deletion command has been invoked by {0}, {1}'.format(
             message.author, message.author.id))
