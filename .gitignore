@@ -129,8 +129,7 @@ dmypy.json
 .pyre/
 
 # Logins and Tokens
-token.txt
-DB_login.json
+/keys
 
 # VS Code generated configurations
 .vscode/
