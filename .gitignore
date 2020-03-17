@@ -128,8 +128,9 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# Bot token
+# Logins and Tokens
 token.txt
+DB_login.json
 
 # VS Code generated configurations
 .vscode/

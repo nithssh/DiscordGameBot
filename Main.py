@@ -1,3 +1,4 @@
+import json
 import logging
 import random
 import threading
@@ -6,8 +7,6 @@ import discord
 import mysql.connector
 import names
 from faker import Faker
-
-#import time
 
 # Objects
 client = discord.Client()
@@ -23,6 +22,10 @@ handler.setFormatter(logging.Formatter(
     '%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)
 
+# Database connection config. Reads from a json file, converts to dict from obj. 
+# Reading config from json file instead of defining config(dict) in this code file.
+with open('DB_login.json', 'r') as f:
+    config = json.load(f)
 
 def bExists(authorID):
     """This fuction check if a user profile exists.\n
@@ -34,8 +37,7 @@ def bExists(authorID):
         'user_id': authorID
     }
     # connect to database
-    cnx = mysql.connector.connect(
-        user='root', password='password123', host='localhost', database='gamedata')
+    cnx = mysql.connector.connect(**config)
     cursor = cnx.cursor(buffered=True)
 
     # Get the record from the DB for message author
@@ -82,8 +84,7 @@ async def on_message(message):
             await message.channel.send("Profile doesn't exist.")
 
             # Connect to the database
-            cnx = mysql.connector.connect(
-            user='root', password='password123', host='localhost', database='gamedata')
+            cnx = mysql.connector.connect(**config)
             cursor = cnx.cursor(buffered=True)
 
             add_profile = ("INSERT INTO gamedata.maintable "
@@ -131,15 +132,14 @@ async def on_message(message):
         cnx.close()
 
 
-    # TODO #7 !profile
+    # !profile
     if message.content.startswith('!profile'):
         logger.info('{0}, {1} invoked !profile command'.format(message.author.id, message.author))
         
         if (bExists(message.author.id)):
             
             # Connect to the database
-            cnx = mysql.connector.connect(
-                user='root', password='password123', host='localhost', database='gamedata')
+            cnx = mysql.connector.connect(**config)
             cursor = cnx.cursor(buffered=False)
             userid = {'discord_Uid': message.author.id}
         
@@ -155,7 +155,7 @@ async def on_message(message):
 
             # Load the message from the file
             with open('message_templates/profile_summary.txt', 'r') as f:
-                profile_message = f.read().format(row[2],row[3],row[4],row[5],row[6],row[7],row[8],row[9],row[10])
+                profile_message = f.read().format(row[2],row[4],row[3],row[5],row[6],row[7],row[8],row[9],row[10])
             
             # Send the summary message using data from the dict
             await message.channel.send(profile_message)
@@ -177,8 +177,7 @@ async def on_message(message):
         if(bExists(message.author.id)):
 
             # Connect to the database
-            cnx = mysql.connector.connect(
-                user='root', password='password123', host='localhost', database='gamedata')
+            cnx = mysql.connector.connect(**config)
             cursor = cnx.cursor(buffered=True)
             userid = {'discord_Uid': message.author.id}
 
@@ -248,8 +247,7 @@ async def on_message(message):
         if (bExists(message.author.id)):
            
             # Connect to the database
-            cnx = mysql.connector.connect(
-                user='root', password='password123', host='localhost', database='gamedata')
+            cnx = mysql.connector.connect(**config)
             cursor = cnx.cursor(buffered=True)
             userid = {'discord_Uid': message.author.id}
 
