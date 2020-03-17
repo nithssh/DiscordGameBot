@@ -89,8 +89,8 @@ async def on_message(message):
                 cursor = cnx.cursor(buffered=True)
 
                 add_profile = ("INSERT INTO gamedata.maintable "
-                            "(discord_userID, discord_username, Name, Gender, Age, Occupation, Location, Happiness, Health, Smarts, Looks, Schedule_deletion) "
-                            "VALUES (%(did)s, %(dun)s, %(n)s, %(g)s, %(a)s, %(o)s, %(l)s, %(hap)s, %(hea)s, %(sma)s, %(loo)s, %(del)s) ")
+                            "(discord_userID, discord_username, Name, Gender, Age, Occupation, Location, Happiness, Health, Smarts, Looks, Schedule_deletion, Bank) "
+                            "VALUES (%(did)s, %(dun)s, %(n)s, %(g)s, %(a)s, %(o)s, %(l)s, %(hap)s, %(hea)s, %(sma)s, %(loo)s, %(del)s, %(bnk)s )")
 
                 gender = random.choice(['male', 'female'])
                 data_profile = {
@@ -105,10 +105,8 @@ async def on_message(message):
                     'hea': random.randrange(80, 101, 1),
                     'sma': random.randrange(5, 97, 1),
                     'loo': random.randrange(1, 101, 1),
-                    'del': 0
-
-                    # TODO #6 Implement bank in DB, !create, and other references.
-                    #bank = 0
+                    'del': 0,
+                    'bnk': 0
                 }
 
                 try:
@@ -156,7 +154,7 @@ async def on_message(message):
 
                 # Load the message from the file
                 with open('message_templates/profile_summary.txt', 'r') as f:
-                    profile_message = f.read().format(row[2],row[4],row[3],row[5],row[6],row[7],row[8],row[9],row[10])
+                    profile_message = f.read().format(row[2],row[4],row[3],row[5],row[6],row[7],row[8],row[9],row[10],row[12])
                 
                 # Send the summary message using data from the dict
                 await message.channel.send(profile_message)

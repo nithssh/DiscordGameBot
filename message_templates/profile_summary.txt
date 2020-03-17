@@ -5,7 +5,7 @@
 3. Gender:      {2} 
 4. Occupation:  {3}
 5. Location:    {4}
-
+6. Bank:        {9}
 ***Corestats***
 
 1. Happiness:   {5}
