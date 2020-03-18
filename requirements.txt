@@ -1,4 +1,4 @@
 discord.py
 faker
 names
-mysql.connector-python
+mysql.connector.python
