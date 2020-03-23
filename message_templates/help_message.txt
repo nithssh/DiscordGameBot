@@ -11,7 +11,7 @@ Welcome to the text-based RPG life simulator that is DiscordLife. Create new wor
 :white_medium_small_square: `!profile` 
 	:white_small_square: Shows all the details of your character 
 
-:white_medium_small_square: `+age` 
+:white_medium_small_square: `!age` 
 	:white_small_square: Progresses the game by incrementing the age of the character [Note the + prefix]
 
 :white_medium_small_square: `!surrender` 

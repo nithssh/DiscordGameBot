@@ -8,18 +8,17 @@ import mysql.connector
 import names
 from faker import Faker
 
-from aging import Aging
 import utilities
+from aging import Aging
 
 # Objects
 client = discord.Client()
 fake = Faker()
-Aging = Aging()
 
 # File logger
 logger = logging.getLogger('discord')
 logger.setLevel(logging.INFO)
-# Current mode is a = append. r for read, w for write, r+ for both and w+ for both with resetting.
+# Current mode is 'a' = append. 'r' for read, 'w' for write, 'r+' for both and 'w+' for both with resetting.
 handler = logging.FileHandler(
     filename='discord.log', encoding='utf-8', mode='a')
 handler.setFormatter(logging.Formatter(
@@ -34,12 +33,13 @@ with open('keys/DB_login.json', 'r') as f:
 # Events
 @client.event
 async def on_ready():
-    print('We have logged in as {0.user}'.format(client))
-    logger.info('We have logged in as {0.user}'.format(client))
+    print('Successfully logged in as {0}'.format(client.user))
+    logger.info('Successfully logged in as {0}'.format(client.user))
 
 # Commands
 @client.event
 async def on_message(message):
+    # Respond only to messages in channels named "simulator" to avoid server wide spam.
     if (((message.channel.name == 'Simulator' or message.channel.name == 'simulator') and message.content.startswith('!')) or message.channel == "DMChannel"):
             
         # Prevents recursion
@@ -75,8 +75,11 @@ async def on_message(message):
                 get_max_world_id = ("SELECT World_ID FROM gamedata.maintable ORDER BY World_ID DESC LIMIT 1")
                 cursor.execute(get_max_world_id)
                 max_world_id = cursor.fetchall()
-                if (len(max_world_id) != 0): 
-                    generated_world_id = max_world_id[0] + 1
+                generated_world_id = 0
+                if (len(max_world_id) != 0):
+                    generated_world_id = 1 
+                    generated_world_id +=  max_world_id[0]
+                    
                 else:
                     generated_world_id = 1
 
@@ -269,7 +272,80 @@ async def on_message(message):
             else:
                 await message.channel.send("@{0} 's profile doesn't exist. Invoke `!help` to see help.".format(message.author))
                 logger.info("{0}, {1} profile doesn't exist. [from:!cancel_surrender]")
-    
+        
+        # !age
+        if (message.content.startswith('!age')):
+            logger.info('The !age command has been invoked by {0}, {1}'.format(message.author, message.author.id))
+            
+            if(utilities.b_exists(message.author.id)):
+                
+                # Connect to the database
+                cnx = mysql.connector.connect(**config)
+                cursor = cnx.cursor(buffered=False)
+                userid = {'discord_Uid': message.author.id}
+
+                # get current value of ready_to_age of user
+                get_aging_status = ("SELECT ready_to_age FROM gamedata.maintable "
+                                    "WHERE discord_userID = %(discord_Uid)s")
+                cursor.execute(get_aging_status, userid)
+                current_aging_status = cursor.fetchall()
+
+                update_aging_status = ("UPDATE gamedata.maintable "
+                                        "SET ready_to_age = %(aging_status)s "
+                                        "WHERE discord_userID = %(discord_Uid)s")
+                
+                # Toggle the ready_to_age field of user
+                if (current_aging_status[0] == 1):
+                    new_aging_status_data = {
+                        'aging_status': 0,
+                        'discord_Uid': message.author.id
+                    }
+                    cursor.execute(update_aging_status, new_aging_status_data)
+                    cnx.commit()
+                else:
+                    new_aging_status_data = {
+                        'aging_status': 1,
+                        'discord_Uid': message.author.id
+                    }
+                    cursor.execute(update_aging_status, new_aging_status_data)
+                    cnx.commit()
+
+                # Check if all profiles in world are ready
+                
+                # Get the world_id of the world to be aged up
+                get_world_id = ("SELECT World_ID FROM gamedata.maintable "
+                                "WHERE discord_userID = %(discord_Uid)s")
+                cursor.execute(get_world_id, userid)
+                world_id = cursor.fetchall()
+                
+                # load the current ready_to_age of all the users in the world
+                get_ready_status_query = ("SELECT ready_to_age FROM gamedata.maintable "
+                                          "WHERE World_ID = %s")
+                cursor.execute(get_ready_status_query, world_id[0])
+                current_ready_status_data = cursor.fetchall()
+                
+                sum_ready_to_age = 0
+                for status in current_ready_status_data:
+                    sum_ready_to_age += status[0]
+                
+                # if all true
+                if (sum_ready_to_age/len(current_ready_status_data) == 1):
+                    ager = Aging()
+                    ager.age_up(message)
+                    await message.channel.send('A year has passed in the World. Everyone is a year older.')
+                else:
+                    if(new_aging_status_data['aging_status'] == 1):
+                        toggle = True
+                    else:
+                        toggle = False
+                    await message.channel.send('You have toggled your readiness to age-up to {0}. Waiting for all players in world to ready-up before aging.'.format(toggle))
+
+                # Close
+                cursor.close()
+                cnx.close()
+            else:
+                await message.channel.send("Profile Doesn't exisit to age. See `!help`")
+
     # When the message isn't in a "simulator" channel.
     elif(message.content.startswith('!') and not (message.channel.name == 'Simulator' or message.channel.name == 'simulator')):
         logger.info('{0}, {1} used a command in the wrong channel in {2}'.format(message.author.id, message.author, message.guild.name))
