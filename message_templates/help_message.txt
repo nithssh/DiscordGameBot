@@ -1,15 +1,21 @@
 > ***Welcome*** 
+Welcome to the text-based RPG life simulator that is DiscordLife. Create new worlds for you and your friends to simulate life in. All the events in the world are shared this way and the sims can interact with each other.
 
-Welcome to the text-based RPG life simulator that is DiscordLife
 
 > ***Commands***
+:white_medium_small_square: `!create <userOne#0000> <userTwo#0000>`
+	:white_small_square: Start a new world! users can have only one profile at a time.
+    :white_small_square: provide your friend and your usernames with their discriminants in the command.
+    :white_small_square: Example: `!create Dem1se#7990 RandomUser#8465`. Notice how the words are seperated by whitespaces.
 
- - `!create` --> Start a new game!
+:white_medium_small_square: `!profile` 
+	:white_small_square: Shows all the details of your character 
 
- - `!profile` --> Shows all the details of your character 
+:white_medium_small_square: `+age` 
+	:white_small_square: Progresses the game by incrementing the age of the character [Note the + prefix]
 
- - `+age` --> Progresses the game by incrementing the age of the character [Note the + prefix]
+:white_medium_small_square: `!surrender` 
+	:white_small_square: Ends the current character. permanently deletes it.
 
- - `!surrender` --> Ends the current character : (
-
- - `!help` --> The trusty command to bring up this message at anytime!
+:white_medium_small_square: `!help` 
+	:white_small_square: The trusty command to bring up this message anytime!
