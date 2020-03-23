@@ -53,7 +53,7 @@ class Aging:
                         "SET Age = %(age)s "
                         "WHERE discord_userID=%(discord_Uid)s")
             cursor.execute(update_age, new_age_data)
-            Agelogger.info('{0}-{1} has aged'.format(message.author.id, message.author))
+            Agelogger.info('{0}, {1} has aged'.format(message.author.id, message.author))
         
         cnx.commit()
 
@@ -61,5 +61,5 @@ class Aging:
         cursor.close()
         cnx.close()
 
-        Agelogger.info('the world with {0}-{1} has aged.'.format(message.author, message.author.id))
+        Agelogger.info('the world with {0}, {1} has aged.'.format(message.author, message.author.id))
         
