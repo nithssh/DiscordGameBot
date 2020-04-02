@@ -35,7 +35,7 @@ The project is currently a monolith.
 * Clone the repo by downloading the repo’s zip and extracting it or using git bash (or other CLIs).
 
 * Open MySQL workbench and create a schema name `gamedata`, and create a table named `maintable` using
-	CREATE TABLE `maintable` (
+    CREATE TABLE `maintable` (
         `discord_userID` varchar(45) NOT NULL,
         `discord_username` varchar(45) DEFAULT NULL,
         `World_ID` int DEFAULT NULL,
