@@ -30,11 +30,11 @@ The project is currently a monolith.
 
 ## Configuration
 
-*Install all the prerequisites (by following the installation instructions found in the respective links).
+* Install all the prerequisites (by following the installation instructions found in the respective links).
 
-*Clone the repo by downloading the repo’s zip and extracting it or using git bash (or other CLIs).
+* Clone the repo by downloading the repo’s zip and extracting it or using git bash (or other CLIs).
 
-*Open MySQL workbench and create a schema name `gamedata`, and create a table named `maintable` using
+* Open MySQL workbench and create a schema name `gamedata`, and create a table named `maintable` using
 	CREATE TABLE `maintable` (
         `discord_userID` varchar(45) NOT NULL,
         `discord_username` varchar(45) DEFAULT NULL,
@@ -54,9 +54,9 @@ The project is currently a monolith.
         PRIMARY KEY (`discord_userID`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
 
-*Within the cloned repo, create a sub directory in the root named `keys`
+* Within the cloned repo, create a sub directory in the root named `keys`
 
-*Create a file named `DB_login.json` and fill it with
+* Create a file named `DB_login.json` and fill it with
     {
         "user": "*username*",
         "password": "*password*",
@@ -65,7 +65,7 @@ The project is currently a monolith.
     }
 Replace the above placeholders (*username*, *password*) with your actual MySQL database credentials.
 
-*Create a file in the same sub directory named `token.txt` and fill it with the bot’s login token found in it [Discord developer portal](https://discordapp.com/developers/applications) page. You need to create a new application in the dev portal, then head to the BOT section in the left panel and get the bot’s token from there.
+* Create a file in the same sub directory named `token.txt` and fill it with the bot’s login token found in it [Discord developer portal](https://discordapp.com/developers/applications) page. You need to create a new application in the dev portal, then head to the BOT section in the left panel and get the bot’s token from there.
 
 ## Deployment
 You can run the bot by simply running the code like a normal python script. If the bot successfully started you will see a message in the console saying the same with some extra details.
