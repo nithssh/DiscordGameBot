@@ -12,7 +12,7 @@ The bot requires no additional permissions than a regular member in your server 
 
 # Usage (playing)
 You can start playing the game by inviting the bot to your server using the above link and then invoking the `!help` command to get a quick help guide.
-*`!create` - use this command to create a world with characters in it for the simulation. Only one character is allowed per user across all servers currently.
+`!create` - use this command to create a world with characters in it for the simulation. Only one character is allowed per user across all servers currently.
 
 # Contributing
 We welcome contributions from the public! If you'd like to help improve the bot, please fork our project and feel free to tackle any Issues. We also welcome feedback in the form of new issues, so feel free to create new ones for discussion.
@@ -22,14 +22,18 @@ The project is currently a monolith.
 * Python 3 - The language the bot is primarily written in. https://www.python.org/downloads/
 * Discord.py - A popular API wrapper for the discord.js written in Python. https://github.com/Rapptz/discord.py
 * MySQL - The database server the bot uses to store all the game data. https://www.mysql.com/downloads/
+
 *Dependencies*
 * faker - random data generator. Currently being used in project for address generation. https://github.com/joke2k/faker
 * names - random name generator. https://github.com/treyhunner/names
 * mysql-connector-python - The connector used to interface with the MySQL database from within python code. Used to query/read/write data to and from the database.
 
 ## Configuration
+
 *Install all the prerequisites (by following the installation instructions found in the respective links).
+
 *Clone the repo by downloading the repo’s zip and extracting it or using git bash (or other CLIs).
+
 *Open MySQL workbench and create a schema name `gamedata`, and create a table named `maintable` using
 	CREATE TABLE `maintable` (
         `discord_userID` varchar(45) NOT NULL,
@@ -51,6 +55,7 @@ The project is currently a monolith.
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
 
 *Within the cloned repo, create a sub directory in the root named `keys`
+
 *Create a file named `DB_login.json` and fill it with
     {
         "user": "*username*",
@@ -59,6 +64,7 @@ The project is currently a monolith.
         "database": "gamedata"
     }
 Replace the above placeholders (*username*, *password*) with your actual MySQL database credentials.
+
 *Create a file in the same sub directory named `token.txt` and fill it with the bot’s login token found in it [Discord developer portal](https://discordapp.com/developers/applications) page. You need to create a new application in the dev portal, then head to the BOT section in the left panel and get the bot’s token from there.
 
 ## Deployment
