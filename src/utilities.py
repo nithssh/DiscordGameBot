@@ -11,11 +11,12 @@ with open('keys/DB_login.json', 'r') as f:
 
 
 def b_exists(authorID):
-    """This fuction check if a user profile exists.\n
+    """
+    This fuction check if a user profile exists.\n
     Should be used before proceeding with a command as standard practise.\n
     Returns:\n
-    True if user profile exists in gamedata.maintable\n
-    False if profile doesn't exist in the same."""
+    >`True` if user profile exists in gamedata.maintable\n
+    >`False` if profile doesn't exist in the same."""
 
     ID = {
         'user_id': authorID

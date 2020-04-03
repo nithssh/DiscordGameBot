@@ -55,10 +55,10 @@ The project is currently a monolith.
         PRIMARY KEY (`discord_userID`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
 ```
-* Within the cloned repo, create a sub directory in the root named `keys`
+* Within the cloned repo, create a sub directory in the root named `keys`.
 
 * Create a file named `DB_login.json` and fill it with
-```json
+``` json
     {
         "user": "*username*",
         "password": "*password*",

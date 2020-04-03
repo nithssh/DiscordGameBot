@@ -23,9 +23,11 @@ class Aging:
 
     # +age
     def age_up(self, message):
-        """ Increments the age of everyone in the world, Affects the corestats of the profiles based on age, and  tiggers random world events"""
+        """ Increments the age of everyone in the world, Affects the corestats of the profiles based on age, and  tiggers random world events.\n
+            Gets called if everyone in world are ready to age."""
         Agelogger.info('{0}, {1} has invoked !age command'.format(message.author.id, message.author))
-            
+        
+        #region Increment Age
         # Connect to the database
         cnx = mysql.connector.connect(**config)
         cursor = cnx.cursor(buffered=False)
@@ -56,10 +58,20 @@ class Aging:
             Agelogger.info('{0}, {1} has aged'.format(message.author.id, message.author))
         
         cnx.commit()
+        Agelogger.info('the world with {0}, {1} has aged.'.format(message.author, message.author.id))
+        #endregion
+         
+        #region Change stats
+        
 
-        #close
+        #endregion
+
+        #region Trigger random events
+        #endregion
+
+        #region Close
         cursor.close()
         cnx.close()
-
-        Agelogger.info('the world with {0}, {1} has aged.'.format(message.author, message.author.id))
+        #endregion
+        
         

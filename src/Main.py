@@ -39,21 +39,21 @@ async def on_ready():
 # Commands
 @client.event
 async def on_message(message):
+
     # Respond only to messages in channels named "simulator" to avoid server wide spam.
-    if (((message.channel.name == 'Simulator' or message.channel.name == 'simulator') and message.content.startswith('!')) or message.channel == "DMChannel"):
+    if ((message.channel.name == 'simulator' and message.content.startswith('!')) or (message.channel == "DMChannel" and message.content.startswith('!'))):
             
-        # Prevents recursion
+        # Don't process messages from the bot. [anti-recursion]
         if message.author == client.user: 
             return
 
-        # !help
+        # !help - send the help message from file.
         if message.content.startswith('!help'):
             logger.info('{0}, {1} invoked !help command.'.format(message.author.id, message.author))
             with open('message_templates/help_message.txt', 'r') as f:
                 await message.channel.send(f.read())
 
-        #!create
-        # Create a new world
+        # !create - create a new world.
         if message.content.startswith('!create'):
             logger.info('{0}, {1} invoked !create command'.format(
                 message.author.id, message.author))
@@ -75,11 +75,9 @@ async def on_message(message):
                 get_max_world_id = ("SELECT World_ID FROM gamedata.maintable ORDER BY World_ID DESC LIMIT 1")
                 cursor.execute(get_max_world_id)
                 max_world_id = cursor.fetchall()
-                generated_world_id = 0
                 if (len(max_world_id) != 0):
-                    generated_world_id = 1 
-                    generated_world_id +=  max_world_id[0]
-                    
+                    generated_world_id = 1
+                    generated_world_id +=  max(max_world_id[0])
                 else:
                     generated_world_id = 1
 
@@ -117,7 +115,7 @@ async def on_message(message):
 
                     except:
                         cnx.rollback()
-                        await message.channel.send('Profile creation failed. This is most probably due to incorrect command sarguments. See `!help` to find correct usage.')
+                        await message.channel.send('Profile creation failed. This is most probably due to incorrect command arguments. See `!help` to find correct usage.')
                         logger.error("{0}, {1} profile creation failed".format(message.author.id, message.author))
             
                 # Close the DB connection
@@ -129,10 +127,7 @@ async def on_message(message):
                 await message.channel.send("Profile already exists. Players can have only one profile at a time. Use `!profile` command to see summary. Use !surrender command to delete profile to create new one in a new world.")
                 logger.info("{0}, {1} profile already exists.".format(message.author.id, message.author))
 
-            
-
-
-        # !profile
+        # !profile - send profile summary.
         if message.content.startswith('!profile'):
             logger.info('{0}, {1} invoked !profile command'.format(message.author.id, message.author))
             
@@ -142,7 +137,7 @@ async def on_message(message):
                 cnx = mysql.connector.connect(**config)
                 cursor = cnx.cursor(buffered=False)
                 userid = {'discord_Uid': message.author.id}
-            
+
                 # Retrive the record from the DB
                 query = ("SELECT * FROM gamedata.maintable "
                         "WHERE discord_userID=%(discord_Uid)s")
@@ -168,7 +163,7 @@ async def on_message(message):
                 await message.channel.send("@{0}'s profile doesn't exist. Invoke `!help` to get started.".format(message.author))
                 logger.info("{0}, {1} profile doesn't exist doesn't to summarize.".format(message.author.id, message.author))
 
-        # !surrender
+        # !surrender - delete current profile.
         if message.content.startswith('!surrender'):
             # profile deletion
             logger.info('{0}, {1} Invoked !surrender command'.format(
@@ -238,8 +233,7 @@ async def on_message(message):
                 await message.channel.send("@{0} 's profile doesn't exist to delete. Invoke `!help` to see help.".format(message.author))
                 logger.info("{0}, {1} profile doesn't exist to delete. [from:!surrender]")
 
-
-        # !cancel_surrender
+        # !cancel_surrender - cancel the profile deletion queuing.
         if (message.content.startswith('!cancel_surrender')):
             logger.info('The !cancel_deletion command has been invoked by {0}, {1}'.format(
                 message.author, message.author.id))
@@ -273,7 +267,8 @@ async def on_message(message):
                 await message.channel.send("@{0} 's profile doesn't exist. Invoke `!help` to see help.".format(message.author))
                 logger.info("{0}, {1} profile doesn't exist. [from:!cancel_surrender]")
         
-        # !age
+        # !age - increase the age of everyone in the world. [progress the game]
+        # toggles ready_to_age of the user, and triggers aging if everyone in world is ready.
         if (message.content.startswith('!age')):
             logger.info('The !age command has been invoked by {0}, {1}'.format(message.author, message.author.id))
             
@@ -334,6 +329,7 @@ async def on_message(message):
                     ager.age_up(message)
                     await message.channel.send('A year has passed in the World. Everyone is a year older.')
                 else:
+                    # For pretty printing the message for user. Changes aging_status to True or False (which is user-readable format)
                     if(new_aging_status_data['aging_status'] == 1):
                         toggle = True
                     else:
