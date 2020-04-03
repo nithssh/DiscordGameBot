@@ -1,7 +1,9 @@
 > ***Welcome***
+
 Welcome to the text-based RPG life simulator that is DiscordLife. Create new worlds for you and your friends to simulate life in. All the events in the world are shared this way and the sims can interact with each other.
 
 > ***Commands***
+
 :white_medium_small_square: `!create <userOne#0000> <userTwo#0000>`
 	:white_small_square: Start a new world! users can have only one profile at a time.
     :white_small_square: provide your friend and your usernames with their discriminants in the command.

@@ -134,6 +134,3 @@ dmypy.json
 # Visual studio generated configurations
 .vscode/
 .vs/
-
-#testing
-testsamples/
