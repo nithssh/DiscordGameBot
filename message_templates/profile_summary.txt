@@ -1,3 +1,6 @@
+World ID:       {10}
+User:           {11}
+
 ***Bio-data***
 
 1. Name:        {0} 
@@ -6,6 +9,7 @@
 4. Occupation:  {3}
 5. Location:    {4}
 6. Bank:        {9}
+
 ***Corestats***
 
 1. Happiness:   {5}

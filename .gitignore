@@ -131,5 +131,6 @@ dmypy.json
 # Logins and Tokens
 /keys
 
-# VS Code generated configurations
+# Visual studio generated configurations
 .vscode/
+.vs/
