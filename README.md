@@ -73,7 +73,10 @@ Replace the above placeholders (*username*, *password*) with your actual MySQL d
 ## Deployment
 You can run the bot by simply running the code like a normal python script. If the bot successfully started you will see a message in the console saying the same with some extra details.
 
-#Credits
+# Credits
 
 # Licence 
  This repo is licensed under the [MIT licence](https://mit-license.org/). See LISENCE file for all the info.
+=======
+# Playing
+To get started, invite the bot using the link in above section and invoke the `!help` command.
