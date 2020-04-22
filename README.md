@@ -76,7 +76,7 @@ You can run the bot by simply running the code like a normal python script. If t
 # Credits
 
 # Licence 
- This repo is licensed under the [MIT licence](https://mit-license.org/). See LISENCE file for all the info.
-=======
+This repo is licensed under the [MIT licence](https://mit-license.org/). See LISENCE file for all the info.
+
 # Playing
 To get started, invite the bot using the link in above section and invoke the `!help` command.
