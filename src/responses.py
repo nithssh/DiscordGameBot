@@ -1,12 +1,18 @@
 import json
-import threading
 import logging
+import random
+import threading
 
 import discord
-import random
 import mysql.connector
 import names
 from faker import Faker
+
+import sqlalchemy as db
+from sqlalchemy import Column, Integer, String
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.sql.sqltypes import INTEGER, VARCHAR
 
 import utilities
 from aging import Aging
@@ -29,6 +35,51 @@ cnx = mysql.connector.connect(**config)
 cursor_buffered = cnx.cursor(buffered=True)
 cursor_unbuffered = cnx.cursor(buffered=False)
 
+engine = db.create_engine(
+    'mysql+mysqlconnector://root:Nithish@mysql1209@localhost/gamedata')
+cnx = engine.connect()
+metadata = db.MetaData()
+Session = sessionmaker(bind=engine)
+session = Session()
+Base = declarative_base()
+
+
+class PlayerData(Base):
+    __tablename__ = 'maintable'
+
+    discord_id = Column(VARCHAR, primary_key=True)
+    username = Column(VARCHAR)
+    world_id = Column(INTEGER)
+    gender = Column(VARCHAR)
+    character_name = Column(VARCHAR)
+    age = Column(INTEGER)
+    occupation = Column(VARCHAR)
+    bank = Column(INTEGER)
+    address = Column(VARCHAR)
+    happiness = Column(INTEGER)
+    health = Column(INTEGER)
+    smarts = Column(INTEGER)
+    looks = Column(INTEGER)
+    deletion = Column(INTEGER)
+    aging_ready = Column(INTEGER)
+
+    def __init__(self, discord_id, username, world_id):
+        self.discord_id = discord_id
+        self.username = username
+        self.world_id = world_id
+        self.gender = random.choice(['male', 'female'])
+        self.character_name = names.get_full_name(gender=self.gender)
+        self.age = 0
+        self.occupation = 'None'
+        self.bank = 0
+        self.address = fake.address()
+        self.happiness = random.randrange(90, 101, 1)
+        self.health = random.randrange(90, 101, 1)
+        self.smarts = random.randrange(5, 97, 1)
+        self.looks = random.randrange(5, 101, 1)
+        self.deletion = False
+        self.aging_ready = False
+
 
 class Response:
     @staticmethod
@@ -37,82 +88,35 @@ class Response:
             await message.channel.send(f.read())
 
     @staticmethod
-    async def on_create(message, user_id, client):
+    async def on_create(message, client):
         # If user doesn't have exisiting profile
         if (utilities.user_profile_exisits(message.author.id) == False):
 
             await message.channel.send("Profile doesn't exist.")
-            cur = cnx.cursor(buffered=False)
-            query_add_profile = (
-                "INSERT INTO gamedata.maintable "
-
-                "(discord_userID, discord_username, World_ID, Name, Gender, Age, "
-                "Occupation, Location, Happiness, Health, Smarts, Looks, Schedule_deletion, Bank) "
-
-                "VALUES (%(did)s, %(dun)s, %(wor)s, %(n)s, %(g)s, %(a)s, "
-                "%(o)s, %(l)s, %(hap)s, %(hea)s, %(sma)s, %(loo)s, %(del)s, %(bnk)s )")
-
-            # Generate World_ID. Retrive the last value of world_id and increment
-            query_max_world_id = (
-                "SELECT World_ID FROM gamedata.maintable ORDER BY World_ID DESC LIMIT 1")
-            cur.execute(query_max_world_id)
-            max_world_id = cur.fetchall()
-            if (len(max_world_id) != 0):
-                generated_world_id = 1
-                generated_world_id += max(max_world_id[0])
-            else:
-                generated_world_id = 1
-
             # Parse the message into its sub components to use in world creation
             message_parts = utilities.parse_message(message, '!create')
 
             for part in message_parts:
                 try:
                     username = part.split('#')
-                    retrived_user_id = discord.utils.get(
-                        client.get_all_members(), name=username[0], discriminator=username[1]).id
-                    gender = random.choice(['male', 'female'])
-
-                    data_profile = {
-                        'did': retrived_user_id,
-                        'dun': username[0],
-                        'wor': generated_world_id,
-                        'n': names.get_full_name(gender=gender),
-                        'g': gender,
-                        'a': 0,
-                        'o': 'None',
-                        'l': fake.address(),
-                        'hap': random.randrange(90, 101, 1),
-                        'hea': random.randrange(90, 101, 1),
-                        'sma': random.randrange(5, 97, 1),
-                        'loo': random.randrange(5, 101, 1),
-                        'del': 0,
-                        'bnk': 0
-                    }
-
-                    cur.execute(
-                        query_add_profile, data_profile)
-                    # Save to DB
-                    cnx.commit()
+                    retrived_user_id = discord.utils.get(client.get_all_members(), name=username[0], discriminator=username[1]).id
+                    player_data = PlayerData(retrived_user_id, username[0], utilities.get_max_worldid())
+                    session.add(player_data)
+                    session.commit()
                     await message.channel.send('Profile successfully created. use `!profile` to see details.')
-                    logger.info("{0}, {1} profile creation successful.".format(
-                        user_id, username[0]))
-
+                    logger.info("{0}, {1} profile creation successful.".format(message.author.id, username[0]))
                 except:
-                    cnx.rollback()
                     await message.channel.send('Profile creation failed. '
-                                               'This is most probably due to incorrect command arguments. '
-                                               'See `!help` to find correct usage.')
-                    logger.error("{0}, {1} profile creation failed".format(
-                        message.author.id, message.author))
+                                            'This is most probably due to incorrect command arguments. '
+                                            'See `!help` to find correct usage.')
+                    logger.error("{0}, {1} profile creation failed".format(message.author.id, message.author))
 
         else:
             # Profile already exists
             await message.channel.send("""Profile already exists. Players can have only one profile at a time. 
             Use `!profile` command to see summary. 
             Use !surrender command to delete profile to create new one in a new world.""")
-            logger.info("{0}, {1} profile already exists.".format(
-                message.author.id, message.author))
+            logger.info("{0}, {1} profile already exists.".format(message.author.id, message.author))
 
     @staticmethod
     async def on_surrender(message, user_id):
@@ -189,7 +193,7 @@ class Response:
                             "WHERE discord_userID=%(discord_Uid)s")
             cursor_unbuffered.execute(query_record, user_id)
             record = cursor_unbuffered.fetchall()
-            
+
             row = []
             # Ready the data for next operations.
             for row in record:

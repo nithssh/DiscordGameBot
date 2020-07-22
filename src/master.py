@@ -86,7 +86,7 @@ async def on_message(message):
         if message.content.startswith('!create'):
             logger.info('{0}, {1} invoked !create command'.format(
                 message.author.id, message.author))
-            await Response.on_create(message, user_id, client)
+            await Response.on_create(message, client)
             
     # When the message isn't in a "simulator" channel.
     elif(message.content.startswith('!') and not

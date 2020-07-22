@@ -27,7 +27,7 @@ def user_profile_exisits(authorID):
 
     # Get the record from the DB for message author
     query = (
-        "SELECT * FROM gamedata.maintable WHERE discord_userID=%(user_id)s")
+        "SELECT * FROM gamedata.maintable WHERE discord_id=%(user_id)s")
     cursor.execute(query, ID)
 
     # If user doesn't have exisiting profile
@@ -55,3 +55,20 @@ def parse_message(message, command_str):
     # remove the first element in the list, As after subsitution the string will start with a whitespace, which on split will create a empty first element.
     output.pop(0)
     return output
+
+
+def get_max_worldid():
+    cnx = mysql.connector.connect(**config)
+    cur = cnx.cursor(buffered=False)
+    query_max_world_id = ("SELECT world_id FROM gamedata.maintable ORDER BY world_id DESC LIMIT 1")
+    cur.execute(query_max_world_id)
+    max_world_id = cur.fetchall()
+    if (len(max_world_id) != 0):
+        generated_world_id = 1
+        generated_world_id += max(max_world_id[0])
+    else:
+        generated_world_id = 1
+    cur.close()
+    cnx.close()
+    return generated_world_id
+                
