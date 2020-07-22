@@ -26,7 +26,7 @@ logger.addHandler(handler)
 
 # Database connection's config. Reads from a json file, converts to dict from obj.
 # Reading config from json file instead of defining config(dict) in this code file.
-with open('keys/DB_login.json', 'r') as f:
+with open('secrets/DB_login.json', 'r') as f:
     config = json.load(f)
 
 # Database connection and cursors
@@ -68,7 +68,7 @@ async def on_message(message):
                 message.author.id, message.author))
 
             # If user doesn't have exisiting profile
-            if (utilities.b_exists(message.author.id) == False):
+            if (utilities.user_profile_exisits(message.author.id) == False):
 
                 await message.channel.send("Profile doesn't exist.")
 
@@ -148,7 +148,7 @@ async def on_message(message):
             logger.info('{0}, {1} invoked !profile command'.format(
                 message.author.id, message.author))
 
-            if (utilities.b_exists(message.author.id)):
+            if (utilities.user_profile_exisits(message.author.id)):
 
                 # Retrive the record from the DB
                 query_record = ("SELECT * FROM gamedata.maintable "
@@ -190,7 +190,7 @@ async def on_message(message):
             logger.info('{0}, {1} Invoked !surrender command'.format(
                 message.author.id, message.author))
 
-            if(utilities.b_exists(message.author.id)):
+            if(utilities.user_profile_exisits(message.author.id)):
 
                 # UPDATE the schedule_deletion field to 1 (true).
                 query_update_deletion_on = ("UPDATE gamedata.maintable "
@@ -203,7 +203,7 @@ async def on_message(message):
                 def deletion_function():
                     # the b_exists validation is required to prevent exceptions due to multiple
                     # threads deleting the same thread, due to multiple commands from same user.
-                    if (utilities.b_exists(message.author.id)):
+                    if (utilities.user_profile_exisits(message.author.id)):
                         # Retrive updated record
                         query_schedule_deletion = (
                             "SELECT Schedule_deletion FROM gamedata.maintable "
@@ -260,7 +260,7 @@ async def on_message(message):
             logger.info('The !cancel_deletion command has been invoked by {0}, {1}'.format(
                 message.author, message.author.id))
 
-            if (utilities.b_exists(message.author.id)):
+            if (utilities.user_profile_exisits(message.author.id)):
 
                 # UPDATE the schedule_deletion field to 0 (False).
                 query_update_deletion_off = ("UPDATE gamedata.maintable "
@@ -292,7 +292,7 @@ async def on_message(message):
             logger.info('The !age command has been invoked by {0}, {1}'.format(
                 message.author, message.author.id))
 
-            if(utilities.b_exists(message.author.id)):
+            if(utilities.user_profile_exisits(message.author.id)):
 
                 # get current value of ready_to_age of user
                 query_get_aging_status = ("SELECT ready_to_age FROM gamedata.maintable "

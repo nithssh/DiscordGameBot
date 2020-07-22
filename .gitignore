@@ -131,7 +131,7 @@ dmypy.json
 .pyre/
 
 # Logins and Tokens
-/keys
+secrets/
 
 # Visual studio generated configurations
 .vscode/

@@ -6,11 +6,11 @@ import mysql.connector
 
 # Database connection's config. Reads from a json file, converts to dict from obj.
 # Reading config from json file instead of defining config(dict) in this code file.
-with open('keys/DB_login.json', 'r') as f:
+with open('secrets/DB_login.json', 'r') as f:
     config = json.load(f)
 
 
-def b_exists(authorID):
+def user_profile_exisits(authorID):
     """
     This fuction check if a user profile exists.\n
     Should be used before proceeding with a command as standard practise.\n

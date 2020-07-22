@@ -19,20 +19,22 @@ We welcome contributions from the public! If you'd like to help improve the bot,
 The project is currently a monolith.
 
 ## Prerequisites
-* Python 3 - The language the bot is primarily written in. https://www.python.org/downloads/
-* Discord.py - A popular API wrapper for the discord.js written in Python. https://github.com/Rapptz/discord.py
+* Python 3.x - The language the bot is primarily written in. https://www.python.org/downloads/
 * MySQL - The database server the bot uses to store all the game data. https://www.mysql.com/downloads/
 
 *Dependencies*
+* Discord.py - A popular API wrapper for the discord.js written in Python. https://github.com/Rapptz/discord.py
 * faker - random data generator. Currently being used in project for address generation. https://github.com/joke2k/faker
 * names - random name generator. https://github.com/treyhunner/names
 * mysql-connector-python - The connector used to interface with the MySQL database from within python code. Used to query/read/write data to and from the database.
 
 ## Configuration
 
-* Install all the prerequisites (by following the installation instructions found in the respective links).
+* Install all the prerequisites.
 
-* Clone the repo by downloading the repo’s zip and extracting it or using git bash (or other CLIs).
+* Install all the dependencies by running the command `pip install -r requirements.txt`.
+
+* Clone the repo.
 
 * Open MySQL workbench and create a schema name `gamedata`, and create a table named `maintable` using
 ``` SQL
@@ -55,7 +57,7 @@ The project is currently a monolith.
         PRIMARY KEY (`discord_userID`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
 ```
-* Within the cloned repo, create a sub directory in the root named `keys`.
+* Within the cloned repo, create a sub directory in the root named `secrets`.
 
 * Create a file named `DB_login.json` and fill it with
 ``` json
@@ -68,7 +70,7 @@ The project is currently a monolith.
 ```
 Replace the above placeholders (*username*, *password*) with your actual MySQL database credentials.
 
-* Create a file in the same sub directory named `token.txt` and fill it with the bot’s login token found in it [Discord developer portal](https://discordapp.com/developers/applications) page. You need to create a new application in the dev portal, then head to the BOT section in the left panel and get the bot’s token from there.
+* Create a file in the same sub directory named `botToken.txt` and fill it with the bot’s login token found in it [Discord developer portal](https://discordapp.com/developers/applications) page. You need to create a new application in the dev portal, then head to the BOT section in the left panel and get the bot’s token from there.
 
 ## Deployment
 You can run the bot by simply running the code like a normal python script. If the bot successfully started you will see a message in the console saying the same with some extra details.
@@ -77,6 +79,3 @@ You can run the bot by simply running the code like a normal python script. If t
 
 # Licence 
  This repo is licensed under the [MIT licence](https://mit-license.org/). See LISENCE file for all the info.
-=======
-# Playing
-To get started, invite the bot using the link in above section and invoke the `!help` command.
