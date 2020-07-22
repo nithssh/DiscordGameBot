@@ -137,6 +137,7 @@ class Response:
                     cursor_buffered.execute(
                         query_schedule_deletion, user_id)
 
+                    b_deletion = 0
                     for Schedule_deletion in cursor_buffered:
                         b_deletion = Schedule_deletion
 
@@ -188,7 +189,8 @@ class Response:
                             "WHERE discord_userID=%(discord_Uid)s")
             cursor_unbuffered.execute(query_record, user_id)
             record = cursor_unbuffered.fetchall()
-
+            
+            row = []
             # Ready the data for next operations.
             for row in record:
                 logger.info('row from record loaded.')
