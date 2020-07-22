@@ -18,7 +18,7 @@ client = discord.Client()
 logger = logging.getLogger('discord')
 logger.setLevel(logging.INFO)
 handler = logging.FileHandler(
-    filename='discord.log', encoding='utf-8', mode='a')
+    filename='front.log', encoding='utf-8', mode='a')
 handler.setFormatter(logging.Formatter(
     '%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
 logger.addHandler(handler)
@@ -61,32 +61,32 @@ async def on_message(message):
         if message.content.startswith('!profile'):
             logger.info('{0}, {1} invoked !profile command'.format(
                 message.author.id, message.author))
-            await Response.on_profile(message, logger, user_id)
+            await Response.on_profile(message, user_id)
 
         # !surrender - delete current profile.
         if message.content.startswith('!surrender'):
             logger.info('{0}, {1} Invoked !surrender command'.format(
                 message.author.id, message.author))
-            await Response.on_surrender(message, logger, user_id)
+            await Response.on_surrender(message, user_id)
 
         # !cancel_surrender - cancel the profile deletion queuing.
         if (message.content.startswith('!cancel_surrender')):
             logger.info('The !cancel_deletion command has been invoked by {0}, {1}'.format(
                 message.author, message.author.id))
-            await Response.on_cancel_surrender(message, logger, user_id)
+            await Response.on_cancel_surrender(message, user_id)
 
         # !age - increase the age of everyone in the world. [progresses the game]
         # toggles ready_to_age of the user, and triggers aging if everyone in world is ready.
         if (message.content.startswith('!age')):
             logger.info('The !age command has been invoked by {0}, {1}'.format(
                 message.author, message.author.id))
-            await Response.on_age(message, logger, user_id)
+            await Response.on_age(message, user_id)
 
         # !create - create a new world.
         if message.content.startswith('!create'):
             logger.info('{0}, {1} invoked !create command'.format(
                 message.author.id, message.author))
-            await Response.on_create(message, logger, user_id, client)
+            await Response.on_create(message, user_id, client)
             
     # When the message isn't in a "simulator" channel.
     elif(message.content.startswith('!') and not

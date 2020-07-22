@@ -1,5 +1,6 @@
 import json
 import threading
+import logging
 
 import discord
 import random
@@ -11,6 +12,15 @@ import utilities
 from aging import Aging
 
 fake = Faker()
+
+# File logger
+logger = logging.getLogger('dl_backend')
+logger.setLevel(logging.INFO)
+handler = logging.FileHandler(
+    filename='back.log', encoding='utf-8', mode='a')
+handler.setFormatter(logging.Formatter(
+    '%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
+logger.addHandler(handler)
 
 # Database connection and cursors
 with open('secrets/DB_login.json', 'r') as f:
@@ -27,7 +37,7 @@ class Response:
             await message.channel.send(f.read())
 
     @staticmethod
-    async def on_create(message, logger, user_id, client):
+    async def on_create(message, user_id, client):
         # If user doesn't have exisiting profile
         if (utilities.user_profile_exisits(message.author.id) == False):
 
@@ -105,7 +115,7 @@ class Response:
                 message.author.id, message.author))
 
     @staticmethod
-    async def on_surrender(message, logger, user_id):
+    async def on_surrender(message, user_id):
         if(utilities.user_profile_exisits(message.author.id)):
             # UPDATE the schedule_deletion field to 1 (true).
             query_update_deletion_on = ("UPDATE gamedata.maintable "
@@ -171,7 +181,7 @@ class Response:
                     message.author.id, message.author)
 
     @staticmethod
-    async def on_profile(message, logger, user_id):
+    async def on_profile(message, user_id):
         if (utilities.user_profile_exisits(message.author.id)):
             # Retrive the record from the DB
             query_record = ("SELECT * FROM gamedata.maintable "
@@ -208,7 +218,7 @@ class Response:
                 message.author.id, message.author))
 
     @staticmethod
-    async def on_cancel_surrender(message, logger, user_id):
+    async def on_cancel_surrender(message, user_id):
         if (utilities.user_profile_exisits(message.author.id)):
 
             # UPDATE the schedule_deletion field to 0 (False).
@@ -236,7 +246,7 @@ class Response:
                         message.author.id, message.author))
 
     @staticmethod
-    async def on_age(message, logger, user_id):
+    async def on_age(message, user_id):
         if(utilities.user_profile_exisits(message.author.id)):
             # get current value of ready_to_age of user
             query_get_aging_status = ("SELECT ready_to_age FROM gamedata.maintable "
