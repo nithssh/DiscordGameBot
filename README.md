@@ -39,23 +39,23 @@ The project is currently a monolith.
 * Open MySQL workbench and create a schema name `gamedata`, and create a table named `maintable` using
 ``` SQL
     CREATE TABLE `maintable` (
-        `discord_userID` varchar(45) NOT NULL,
-        `discord_username` varchar(45) DEFAULT NULL,
-        `World_ID` int DEFAULT NULL,
-        `Name` varchar(45) DEFAULT NULL,
-        `Gender` varchar(6) DEFAULT NULL,
-        `Age` int DEFAULT NULL,
-        `Occupation` varchar(45) DEFAULT NULL,
-        `Location` varchar(100) DEFAULT NULL,
-        `Happiness` int DEFAULT NULL,
-        `Health` int DEFAULT NULL,
-        `Smarts` int DEFAULT NULL,
-        `Looks` int DEFAULT NULL,
-        `Schedule_deletion` int DEFAULT NULL,
-        `Bank` varchar(45) DEFAULT NULL,
-        `ready_to_age` int DEFAULT '0',
-        PRIMARY KEY (`discord_userID`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+  `discord_id` varchar(64) NOT NULL,
+  `username` varchar(45) DEFAULT NULL,
+  `world_id` int DEFAULT NULL,
+  `gender` varchar(6) DEFAULT NULL,
+  `character_name` varchar(45) DEFAULT NULL,
+  `age` int DEFAULT NULL,
+  `occupation` varchar(15) DEFAULT NULL,
+  `bank` int DEFAULT NULL,
+  `address` varchar(60) DEFAULT NULL,
+  `happiness` int DEFAULT NULL,
+  `health` int DEFAULT NULL,
+  `smarts` int DEFAULT NULL,
+  `looks` int DEFAULT NULL,
+  `deletion` tinyint DEFAULT NULL,
+  `aging_ready` tinyint DEFAULT NULL,
+  PRIMARY KEY (`discord_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8
 ```
 * Within the cloned repo, create a sub directory in the root named `secrets`.
 
